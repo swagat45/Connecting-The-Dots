@@ -61,11 +61,13 @@
 *No GPU, no internet at runtime – all models are baked into the Docker image.*
 
 ---
+<a id="architecture"></a>
 graph TD
     A[PDFs] -->|PyMuPDF<br>or Tesseract (JP)| B[Heading Detector]
     B --> C[MiniLM Embeddings]
     C -->|dot-product| D[Section Ranker]
     D --> E[JSON (Output)]
+
 ---
 
 

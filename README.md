@@ -41,48 +41,7 @@
 
 ---
 
-<a id="metrics"></a>
-
-## 📊 Metrics
-
-| Metric | English | Japanese |
-|--------|---------|----------|
-| **F1 (H1–H3)** | **0.92** | **0.88** |
-| **Throughput** | 72 ms / page | 81 ms / page |
-
-*Intel i5-8250U · 2 vCPU · 8 GB RAM*
-
----
-
-<a id="architecture"></a>
-
-## 🖼️ Architecture
-
-```mermaid
-graph TD
-  A[PDFs] --> |PyMuPDF / Tesseract| B[Heading Detector]
-  B --> C[MiniLM Embeddings]
-  C --> |dot-product| D[Section Ranker]
-  D --> E[JSON Output]
-
-
 <a id="quick-start"></a>
-
----
-
-<a id="repo-layout"></a>
-
-## 📂 Repo Layout
-```text
-.
-├── Dockerfile         # builds offline image
-├── verify.sh          # local smoke tests
-├── sample_docs/       # 3 PDFs for quick checks
-├── meta/              # persona.txt & job.txt
-├── src/               # extractor.py, selector.py, …
-└── models/            # MiniLM weights baked during build
-
----
 ## 🚀 Quick Start
 
 ```bash
@@ -96,6 +55,8 @@ docker run -v $PWD/sample_docs:/in  -v $PWD/out1a:/out connectdots:latest
 docker run -v $PWD/sample_docs:/app/input \
            -v $PWD/out1b:/app/output      \
            -v $PWD/meta:/app/meta         \
+           connectdots:latest persona
+
            connectdots:latest persona
 
 

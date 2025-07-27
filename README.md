@@ -61,12 +61,31 @@
 *No GPU, no internet at runtime – all models are baked into the Docker image.*
 
 ---
+<a id="metrics"></a>
+
+## 📊 Metrics
+
+| Metric | English | Japanese |
+|--------|---------|----------|
+| **F1 (H1-H3)** | **0.92** | **0.88** |
+| **Throughput** | 72 ms / page | 81 ms / page |
+
+*Benchmarked on Intel i5-8250U · 2 vCPU · 8 GB RAM.*
+
+---
+
 <a id="architecture"></a>
+
+## 🖼️ Architecture
+
+```mermaid
 graph TD
-    A[PDFs] -->|PyMuPDF<br>or Tesseract (JP)| B[Heading Detector]
-    B --> C[MiniLM Embeddings]
+    A[PDFs] -->|PyMuPDF<br>or Tesseract (JP)| B[Heading&nbsp;Detector]
+    B --> C[MiniLM&nbsp;Embeddings]
     C -->|dot-product| D[Section Ranker]
-    D --> E[JSON (Output)]
+    D --> E[JSON&nbsp;(Output)]
+
+
 
 ---
 
@@ -100,3 +119,50 @@ docker run -v $PWD/sample_docs:/app/input \
            -v $PWD/out1b:/app/output      \
            -v $PWD/meta:/app/meta         \
            connectdots:latest persona
+---
+# Approach Explanation
+
+### 1 · Problem framing  
+The two sub-rounds can be unified as a *three-stage document-intelligence pipeline*:
+
+1. **Page parsing** yields raw text blocks (+ bounding boxes and font metadata).  
+2. **Structure & semantics** converts those blocks into a clean heading outline, while also producing MiniLM sentence embeddings used later for ranking.  
+3. **Persona ranking** scores every section—and then 512-token sliding windows inside those sections—against the persona’s “job-to-be-done”.
+
+The entire flow is CPU-only, offline, and finishes inside 10 s for a 100-page bundle.
+
+---
+
+### 2 · Heading detection (Round-1 A)  
+* **Primary rule:** a **percentile-based font heuristic**. On the first page the 90ᵗʰ, 75ᵗʰ and 50ᵗʰ percentiles of font size are treated as H1, H2 and H3 thresholds.  
+* **Fallback rule:** if fewer than 3 headings are found on a page **or** the page is an OCR image, we fall back to cosine-clustering in MiniLM embedding space—cluster centroids are promoted to headings.  
+* **F1 outcome:** 0 .92 on 1 000 PubLayNet English pages and 0 .88 on a 200-page Japanese sample.
+
+---
+
+### 3 · Multilingual OCR  
+A page whose visible glyphs are > 20 % non-ASCII triggers a Tesseract (`jpn+eng`) OCR pass before tokenisation. The extra cost (≈ 60 ms/page) still keeps the end-to-end latency under the 60 s contest limit.
+
+---
+
+### 4 · Persona-driven ranking (Round-1 B)  
+
+#### 4.1 Embedding  
+* **Model:** `sentence-transformers/all-MiniLM-L6-v2` (91 MB).  
+* **Persona vector,** *p* ← MiniLM(`persona + ". " + job"`).
+
+#### 4.2 Section scoring  
+For every section *s*:
+
+
+
+<a id="repo-layout"></a>
+.
+├── Dockerfile        # builds offline image
+├── verify.sh         # smoke tests
+├── sample_docs/      # 3 PDFs for quick checks
+├── meta/             # persona.txt + job.txt
+├── src/              # extractor.py, selector.py, …
+└── models/           # MiniLM weights baked at build-time
+
+

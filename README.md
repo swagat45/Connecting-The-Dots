@@ -61,6 +61,9 @@
 *No GPU, no internet at runtime – all models are baked into the Docker image.*
 
 ---
+PDFs → PyMuPDF/Tesseract → Heading Detector → MiniLM embeddings
+      ↘ full-page text  ↙                       ↘ section ranker → JSON
+
 
 ## 🚀 Quick start
 

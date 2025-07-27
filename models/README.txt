@@ -1,0 +1,1 @@
+Download or cache 'all-MiniLM-L6-v2' weights here.

@@ -80,30 +80,16 @@
 
 ```mermaid
 graph TD
-    A[PDFs] -->|PyMuPDF<br>or Tesseract (JP)| B[Heading&nbsp;Detector]
-    B --> C[MiniLM&nbsp;Embeddings]
+    A[PDFs] -->|PyMuPDF / Tesseract (JP)| B[Heading Detector]
+    B --> C[MiniLM Embeddings]
     C -->|dot-product| D[Section Ranker]
-    D --> E[JSON&nbsp;(Output)]
+    D --> E[JSON Output]
 
 
 
 ---
 
 
-## 🚀 Quick start
-
-```bash
-# build once
-docker build -t connectdots:latest .
-
-# Round-1A: heading JSONs
-docker run -v $PWD/sample_docs:/in  -v $PWD/out1a:/out connectdots:latest
-
-# Round-1B: persona ranking
-docker run -v $PWD/sample_docs:/app/input \
-           -v $PWD/out1b:/app/output      \
-           -v $PWD/meta:/app/meta         \
-           connectdots:latest persona
 ## 🚀 Quick Start
 
 ```bash

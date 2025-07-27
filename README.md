@@ -80,9 +80,9 @@
 
 ```mermaid
 graph TD
-    A[PDFs] -->|PyMuPDF / Tesseract (JP)| B[Heading Detector]
+    A[PDFs] --> |PyMuPDF / Tesseract| B[Heading Detector]
     B --> C[MiniLM Embeddings]
-    C -->|dot-product| D[Section Ranker]
+    C --> |dot-product| D[Section Ranker]
     D --> E[JSON Output]
 
 
